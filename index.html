@@ -13,6 +13,8 @@
             --success: #28a745;
             --error: #dc3545;
             --warning: #ffc107;
+            --connected: #28a745;
+            --disconnected: #dc3545;
         }
         
         body { 
@@ -50,30 +52,65 @@
             opacity: 0.9;
         }
         
-        .connection-status {
+        .connection-panel {
             background: var(--card-bg);
-            padding: 15px;
+            padding: 25px;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             width: 100%;
             max-width: 500px;
             margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .status-indicator {
-            width: 12px;
-            height: 12px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             margin-right: 10px;
             display: inline-block;
+            vertical-align: middle;
         }
         
-        .connected { background: var(--success); }
-        .disconnected { background: var(--error); }
+        .connected { background: var(--connected); box-shadow: 0 0 10px var(--connected); }
+        .disconnected { background: var(--disconnected); }
         .connecting { background: var(--warning); }
+        
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+            text-transform: uppercase;
+            font-family: monospace;
+        }
+        
+        .code-input:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
+        }
+        
+        .connect-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        .connect-btn:hover {
+            background-color: #004494;
+        }
         
         .med-card { 
             background: var(--card-bg); 
@@ -83,11 +120,12 @@
             width: 100%; 
             max-width: 500px; 
             margin-bottom: 20px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
         
-        .med-card:hover {
-            transform: translateY(-5px);
+        .disabled {
+            opacity: 0.6;
+            pointer-events: none;
         }
         
         .med-label { 
@@ -114,11 +152,6 @@
             transition: border-color 0.3s;
         }
         
-        input[type="time"]:focus {
-            border-color: var(--primary-blue);
-            outline: none;
-        }
-        
         .enter-btn { 
             background: var(--primary-blue); 
             color: white; 
@@ -131,8 +164,13 @@
             transition: background-color 0.3s;
         }
         
-        .enter-btn:hover {
+        .enter-btn:hover:not(:disabled) {
             background-color: #004494;
+        }
+        
+        .enter-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
         
         .manual-btn { 
@@ -149,9 +187,15 @@
             margin-bottom: 10px;
         }
         
-        .manual-btn:hover { 
+        .manual-btn:hover:not(:disabled) { 
             background: var(--primary-blue); 
             color: white; 
+        }
+        
+        .manual-btn:disabled {
+            border-color: #cccccc;
+            color: #cccccc;
+            cursor: not-allowed;
         }
         
         .status { 
@@ -168,37 +212,6 @@
             display: block !important;
         }
         
-        .config-section {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-        
-        .config-input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-        
-        .save-btn {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
         .notification {
             position: fixed;
             top: 20px;
@@ -210,11 +223,38 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             display: none;
+            max-width: 350px;
         }
         
         .notification.success { background: var(--success); }
         .notification.error { background: var(--error); }
         .notification.info { background: var(--primary-blue); }
+        
+        .device-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary-blue);
+        }
+        
+        .scan-btn {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .scan-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -223,91 +263,99 @@
         <div id="date">Loading...</div>
     </div>
     
-    <div class="connection-status">
-        <div>
-            <span id="connStatus" class="status-indicator disconnected"></span>
-            <span id="connText">Disconnected from Dispenser</span>
+    <div class="connection-panel">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <div>
+                <span id="connStatus" class="status-indicator disconnected"></span>
+                <span id="connText" style="font-weight: 600;">Disconnected</span>
+            </div>
+            <span id="connCode" style="font-weight: bold; color: var(--primary-blue);"></span>
         </div>
-        <div id="connIp"></div>
+        
+        <input type="text" id="secretCode" class="code-input" maxlength="6" placeholder="Enter 6-letter code" oninput="this.value = this.value.toUpperCase()">
+        
+        <button class="connect-btn" onclick="connectToDevice()">Connect to Dispenser</button>
+        
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="scan-btn" onclick="startDiscovery()">🔍 Scan for Devices</button>
+        </div>
+        
+        <div id="deviceInfo" class="device-info" style="display: none;">
+            <div><strong>Connected Device:</strong> <span id="deviceName"></span></div>
+            <div><strong>Code:</strong> <span id="deviceCode"></span></div>
+            <div><strong>Session:</strong> <span id="deviceSession"></span></div>
+        </div>
     </div>
 
-    <div class="med-card">
-        <span class="med-label">Glipizide</span>
-        <div class="input-row">
-            <input type="time" id="t-glipizide">
-            <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
+    <div id="medCards">
+        <div class="med-card disabled">
+            <span class="med-label">Glipizide</span>
+            <div class="input-row">
+                <input type="time" id="t-glipizide" disabled>
+                <button class="enter-btn" onclick="setAlarm('glipizide')" disabled>Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('glipizide')" disabled>Manual Open</button>
+            <div id="s-glipizide" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
-        <div id="s-glipizide" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Omee Tablet</span>
-        <div class="input-row">
-            <input type="time" id="t-omee">
-            <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
+        <div class="med-card disabled">
+            <span class="med-label">Omee Tablet</span>
+            <div class="input-row">
+                <input type="time" id="t-omee" disabled>
+                <button class="enter-btn" onclick="setAlarm('omee')" disabled>Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('omee')" disabled>Manual Open</button>
+            <div id="s-omee" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
-        <div id="s-omee" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Dolo 650</span>
-        <div class="input-row">
-            <input type="time" id="t-dolo">
-            <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
+        <div class="med-card disabled">
+            <span class="med-label">Dolo 650</span>
+            <div class="input-row">
+                <input type="time" id="t-dolo" disabled>
+                <button class="enter-btn" onclick="setAlarm('dolo')" disabled>Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('dolo')" disabled>Manual Open</button>
+            <div id="s-dolo" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
-        <div id="s-dolo" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Paracetamol</span>
-        <div class="input-row">
-            <input type="time" id="t-paracetamol">
-            <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
+        <div class="med-card disabled">
+            <span class="med-label">Paracetamol</span>
+            <div class="input-row">
+                <input type="time" id="t-paracetamol" disabled>
+                <button class="enter-btn" onclick="setAlarm('paracetamol')" disabled>Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('paracetamol')" disabled>Manual Open</button>
+            <div id="s-paracetamol" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
-        <div id="s-paracetamol" class="status">Alarm Set</div>
-    </div>
-
-    <div class="config-section">
-        <h3>Dispenser Configuration</h3>
-        <input type="text" id="espIp" class="config-input" placeholder="ESP8266 IP Address (e.g., 192.168.1.100)">
-        <button class="save-btn" onclick="saveConfig()">Save Configuration</button>
     </div>
 
     <div id="notification" class="notification"></div>
 
     <script>
-        // Configuration
-        let config = {
-            espIp: localStorage.getItem('espIp') || '',
-            alarms: {
-                glipizide: localStorage.getItem('alarm_glipizide') || null,
-                omee: localStorage.getItem('alarm_omee') || null,
-                dolo: localStorage.getItem('alarm_dolo') || null,
-                paracetamol: localStorage.getItem('alarm_paracetamol') || null
-            },
-            connected: false
+        // State Management
+        let state = {
+            connected: false,
+            session: null,
+            deviceCode: null,
+            alarms: {},
+            discoveredDevices: []
         };
 
-        // DOM elements
-        const connStatus = document.getElementById('connStatus');
-        const connText = document.getElementById('connText');
-        const connIp = document.getElementById('connIp');
-        const espIpInput = document.getElementById('espIp');
+        // DOM Elements
         const notification = document.getElementById('notification');
+        const secretCodeInput = document.getElementById('secretCode');
+        const medCards = document.getElementById('medCards');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            espIpInput.value = config.espIp;
-            loadAlarms();
             updateClock();
-            checkConnection();
+            loadSavedData();
             setInterval(updateClock, 1000);
-            setInterval(checkConnection, 5000);
             setInterval(checkAlarms, 1000);
+            setInterval(checkConnection, 10000); // Check every 10 seconds
+            
+            // Auto-focus code input
+            secretCodeInput.focus();
         });
 
         function showNotification(message, type = 'info', duration = 3000) {
@@ -339,57 +387,228 @@
                 });
         }
 
-        async function checkConnection() {
-            if (!config.espIp) {
-                connStatus.className = 'status-indicator disconnected';
-                connText.textContent = 'Please set ESP8266 IP address';
-                connIp.textContent = '';
-                config.connected = false;
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://${config.espIp}/health`, { 
-                    method: 'GET',
-                    mode: 'no-cors',
-                    cache: 'no-cache'
-                });
-                
-                connStatus.className = 'status-indicator connected';
-                connText.textContent = 'Connected to Dispenser';
-                connIp.textContent = `IP: ${config.espIp}`;
-                config.connected = true;
-            } catch (error) {
-                connStatus.className = 'status-indicator disconnected';
-                connText.textContent = 'Disconnected from Dispenser';
-                connIp.textContent = `IP: ${config.espIp}`;
-                config.connected = false;
-            }
-        }
-
-        function loadAlarms() {
-            for (const med in config.alarms) {
-                if (config.alarms[med]) {
-                    document.getElementById(`t-${med}`).value = config.alarms[med];
-                    document.getElementById(`s-${med}`).classList.add('alarm-set');
+        function loadSavedData() {
+            // Load saved alarms
+            const savedAlarms = localStorage.getItem('medimate_alarms');
+            if (savedAlarms) {
+                state.alarms = JSON.parse(savedAlarms);
+                for (const [med, time] of Object.entries(state.alarms)) {
+                    if (time) {
+                        document.getElementById(`t-${med}`).value = time;
+                        document.getElementById(`s-${med}`).classList.add('alarm-set');
+                    }
                 }
             }
+            
+            // Load saved device code
+            const savedCode = localStorage.getItem('medimate_device_code');
+            if (savedCode) {
+                secretCodeInput.value = savedCode;
+            }
         }
 
-        function saveConfig() {
-            config.espIp = espIpInput.value;
-            localStorage.setItem('espIp', config.espIp);
-            showNotification('Configuration saved!', 'success');
-            checkConnection();
+        function saveAlarms() {
+            localStorage.setItem('medimate_alarms', JSON.stringify(state.alarms));
+        }
+
+        async function startDiscovery() {
+            showNotification("🔍 Scanning for devices...", "info");
+            
+            // Try common local IP ranges
+            const baseIPs = [];
+            for (let i = 1; i <= 254; i++) {
+                baseIPs.push(`192.168.1.${i}`);
+                baseIPs.push(`192.168.0.${i}`);
+                baseIPs.push(`10.0.0.${i}`);
+            }
+            
+            let foundDevice = null;
+            
+            // Check a few common IPs first
+            const commonIPs = [
+                '192.168.1.100', '192.168.1.101', '192.168.1.102',
+                '192.168.0.100', '192.168.0.101', '192.168.0.102',
+                '10.0.0.100', '10.0.0.101'
+            ];
+            
+            for (const ip of commonIPs) {
+                try {
+                    const response = await fetch(`http://${ip}/discover`, { 
+                        method: 'GET',
+                        mode: 'no-cors',
+                        cache: 'no-store',
+                        timeout: 1000
+                    }).catch(() => null);
+                    
+                    if (response && response.ok) {
+                        const data = await response.json();
+                        if (data.device === 'medimate') {
+                            foundDevice = data;
+                            secretCodeInput.value = data.code;
+                            showNotification(`Found device: ${data.code} at ${ip}`, 'success');
+                            break;
+                        }
+                    }
+                } catch (error) {
+                    // Continue scanning
+                }
+            }
+            
+            if (!foundDevice) {
+                showNotification("No devices found. Please enter code manually.", "info");
+            }
+        }
+
+        async function connectToDevice() {
+            const code = secretCodeInput.value.trim().toUpperCase();
+            
+            if (code.length !== 6) {
+                showNotification("Please enter a 6-letter code", "error");
+                return;
+            }
+            
+            showNotification(`Connecting to device ${code}...`, "info");
+            
+            // Try to discover device first
+            try {
+                const discoverResponse = await fetch(`http://${code}.local/discover`);
+                if (discoverResponse.ok) {
+                    const data = await discoverResponse.json();
+                    if (data.code === code) {
+                        await establishConnection(data.ip, code);
+                        return;
+                    }
+                }
+            } catch (error) {
+                // Try direct IP scanning
+            }
+            
+            // If mDNS fails, try scanning common IPs
+            const commonIPs = [
+                '192.168.1.100', '192.168.1.101', '192.168.1.102',
+                '192.168.0.100', '192.168.0.101', '192.168.0.102'
+            ];
+            
+            for (const ip of commonIPs) {
+                try {
+                    const response = await fetch(`http://${ip}/connect?code=${code}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.status === 'connected') {
+                            await establishConnection(ip, code, data.session);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    continue;
+                }
+            }
+            
+            showNotification("Device not found. Check code and network.", "error");
+        }
+
+        async function establishConnection(ip, code, session = null) {
+            try {
+                const response = await fetch(`http://${ip}/connect?code=${code}`);
+                const data = await response.json();
+                
+                if (data.status === 'connected') {
+                    state.connected = true;
+                    state.session = data.session;
+                    state.deviceCode = code;
+                    
+                    // Update UI
+                    document.getElementById('connStatus').className = 'status-indicator connected';
+                    document.getElementById('connText').textContent = 'Connected';
+                    document.getElementById('connCode').textContent = `Code: ${code}`;
+                    
+                    // Enable medication cards
+                    const cards = medCards.querySelectorAll('.med-card');
+                    const inputs = medCards.querySelectorAll('input, button');
+                    cards.forEach(card => card.classList.remove('disabled'));
+                    inputs.forEach(input => input.disabled = false);
+                    
+                    // Show device info
+                    document.getElementById('deviceInfo').style.display = 'block';
+                    document.getElementById('deviceName').textContent = data.device;
+                    document.getElementById('deviceCode').textContent = code;
+                    document.getElementById('deviceSession').textContent = data.session.substring(0, 8) + '...';
+                    
+                    // Save to localStorage
+                    localStorage.setItem('medimate_device_code', code);
+                    
+                    showNotification(`✅ Connected to ${data.device}!`, 'success');
+                    speak("Connected to MediMate dispenser");
+                    
+                    // Start heartbeat
+                    startHeartbeat(ip);
+                    
+                } else {
+                    showNotification(data.error || "Connection failed", "error");
+                }
+            } catch (error) {
+                showNotification("Connection error: " + error.message, "error");
+            }
+        }
+
+        function startHeartbeat(ip) {
+            setInterval(async () => {
+                if (!state.connected) return;
+                
+                try {
+                    const response = await fetch(`http://${ip}/status`);
+                    const data = await response.json();
+                    
+                    if (data.status !== 'online') {
+                        disconnectDevice();
+                    }
+                } catch (error) {
+                    disconnectDevice();
+                }
+            }, 5000); // Check every 5 seconds
+        }
+
+        function disconnectDevice() {
+            state.connected = false;
+            state.session = null;
+            
+            document.getElementById('connStatus').className = 'status-indicator disconnected';
+            document.getElementById('connText').textContent = 'Disconnected';
+            document.getElementById('connCode').textContent = '';
+            document.getElementById('deviceInfo').style.display = 'none';
+            
+            // Disable medication cards
+            const cards = medCards.querySelectorAll('.med-card');
+            const inputs = medCards.querySelectorAll('input, button');
+            cards.forEach(card => card.classList.add('disabled'));
+            inputs.forEach(input => input.disabled = true);
+            
+            showNotification("Disconnected from device", "error");
+        }
+
+        async function checkConnection() {
+            if (!state.connected) return;
+            
+            // Try to get status from current device
+            try {
+                await fetch(`http://${state.deviceCode}.local/status`);
+            } catch (error) {
+                disconnectDevice();
+            }
         }
 
         function setAlarm(med) {
+            if (!state.connected) {
+                showNotification("Please connect to a device first", "error");
+                return;
+            }
+            
             const timeVal = document.getElementById(`t-${med}`).value;
             if (timeVal) {
-                config.alarms[med] = timeVal;
-                localStorage.setItem(`alarm_${med}`, timeVal);
+                state.alarms[med] = timeVal;
+                saveAlarms();
                 document.getElementById(`s-${med}`).classList.add('alarm-set');
-                showNotification(`Alarm set for ${med} at ${timeVal}`, 'success');
+                showNotification(`⏰ Alarm set for ${med} at ${timeVal}`, 'success');
                 speak(`Alarm set for ${med}`);
             } else {
                 showNotification('Please select a time', 'error');
@@ -397,16 +616,16 @@
         }
 
         function checkAlarms() {
-            if (!config.connected) return;
+            if (!state.connected) return;
             
             const now = new Date();
             const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
             
-            for (const med in config.alarms) {
-                if (config.alarms[med] === currentTime) {
+            for (const [med, alarmTime] of Object.entries(state.alarms)) {
+                if (alarmTime === currentTime) {
                     triggerDispense(med);
-                    config.alarms[med] = null;
-                    localStorage.removeItem(`alarm_${med}`);
+                    delete state.alarms[med];
+                    saveAlarms();
                     document.getElementById(`s-${med}`).classList.remove('alarm-set');
                     document.getElementById(`t-${med}`).value = '';
                 }
@@ -414,32 +633,44 @@
         }
 
         async function triggerDispense(med) {
-            if (!config.connected) {
-                showNotification('Cannot dispense: Not connected to dispenser', 'error');
+            if (!state.connected || !state.session) {
+                showNotification("Cannot dispense: Not connected", "error");
                 return;
             }
             
             try {
-                const response = await fetch(`http://${config.espIp}/dispense?pill=${med}time`);
-                speak(`Attention! It is time to take your ${med} medicine.`);
-                showNotification(`${med} dispensed successfully!`, 'success');
+                const response = await fetch(`http://${state.deviceCode}.local/dispense?pill=${med}time&session=${state.session}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    speak(`Attention! It is time to take your ${med} medicine.`);
+                    showNotification(`✅ ${med} dispensed!`, 'success');
+                } else {
+                    showNotification(data.error || "Dispense failed", "error");
+                }
             } catch (error) {
-                showNotification('Failed to dispense medicine', 'error');
+                showNotification("Failed to dispense: " + error.message, "error");
             }
         }
 
         async function manualOpen(pill) {
-            if (!config.connected) {
-                showNotification('Cannot open: Not connected to dispenser', 'error');
+            if (!state.connected || !state.session) {
+                showNotification("Please connect to a device first", "error");
                 return;
             }
             
             try {
-                const response = await fetch(`http://${config.espIp}/dispense?pill=${pill}`);
-                speak(`Manually opening ${pill} box`);
-                showNotification(`${pill} box opened`, 'info');
+                const response = await fetch(`http://${state.deviceCode}.local/dispense?pill=${pill}&session=${state.session}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    speak(`Manually opening ${pill} box`);
+                    showNotification(`📦 ${pill} box opened`, 'info');
+                } else {
+                    showNotification(data.error || "Failed to open", "error");
+                }
             } catch (error) {
-                showNotification('Failed to open box', 'error');
+                showNotification("Failed to open box: " + error.message, "error");
             }
         }
 
@@ -448,7 +679,7 @@
                 const msg = new SpeechSynthesisUtterance();
                 msg.text = text;
                 msg.volume = 1;
-                msg.rate = 1;
+                msg.rate = 0.9;
                 msg.pitch = 1;
                 window.speechSynthesis.speak(msg);
             }
