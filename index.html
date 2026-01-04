@@ -13,7 +13,6 @@
             --success: #28a745;
             --error: #dc3545;
             --warning: #ffc107;
-            --info: #17a2b8;
         }
         
         body { 
@@ -179,32 +178,13 @@
             margin-top: 20px;
         }
         
-        .code-input {
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-            font-size: 1.2rem;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        
-        .input-group {
-            margin: 15px 0;
-        }
-        
-        .input-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-        
         .config-input {
             width: 100%;
             padding: 12px;
+            margin: 10px 0;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1rem;
-            box-sizing: border-box;
         }
         
         .save-btn {
@@ -219,43 +199,6 @@
             margin-top: 10px;
         }
         
-        .scan-btn {
-            background: var(--info);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .device-list {
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .device-item {
-            padding: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .device-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .device-id {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: var(--primary-blue);
-        }
-        
         .notification {
             position: fixed;
             top: 20px;
@@ -267,42 +210,11 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             display: none;
-            max-width: 300px;
         }
         
         .notification.success { background: var(--success); }
         .notification.error { background: var(--error); }
-        .notification.info { background: var(--info); }
-        .notification.warning { background: var(--warning); }
-        
-        .qr-section {
-            text-align: center;
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 500px;
-        }
-        
-        #qrcode {
-            margin: 20px auto;
-            width: 200px;
-            height: 200px;
-        }
-        
-        .secret-code-display {
-            font-family: 'Courier New', monospace;
-            font-size: 2rem;
-            letter-spacing: 3px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-            border: 2px dashed #ddd;
-        }
+        .notification.info { background: var(--primary-blue); }
     </style>
 </head>
 <body>
@@ -314,136 +226,87 @@
     <div class="connection-status">
         <div>
             <span id="connStatus" class="status-indicator disconnected"></span>
-            <span id="connText">Disconnected</span>
+            <span id="connText">Disconnected from Dispenser</span>
         </div>
-        <div id="connDeviceId"></div>
+        <div id="connIp"></div>
+    </div>
+
+    <div class="med-card">
+        <span class="med-label">Glipizide</span>
+        <div class="input-row">
+            <input type="time" id="t-glipizide">
+            <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
+        </div>
+        <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
+        <div id="s-glipizide" class="status">Alarm Set</div>
+    </div>
+
+    <div class="med-card">
+        <span class="med-label">Omee Tablet</span>
+        <div class="input-row">
+            <input type="time" id="t-omee">
+            <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
+        </div>
+        <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
+        <div id="s-omee" class="status">Alarm Set</div>
+    </div>
+
+    <div class="med-card">
+        <span class="med-label">Dolo 650</span>
+        <div class="input-row">
+            <input type="time" id="t-dolo">
+            <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
+        </div>
+        <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
+        <div id="s-dolo" class="status">Alarm Set</div>
+    </div>
+
+    <div class="med-card">
+        <span class="med-label">Paracetamol</span>
+        <div class="input-row">
+            <input type="time" id="t-paracetamol">
+            <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
+        </div>
+        <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
+        <div id="s-paracetamol" class="status">Alarm Set</div>
     </div>
 
     <div class="config-section">
-        <h3>Connect to Dispenser</h3>
-        
-        <div class="input-group">
-            <label class="input-label">Secret Code (5 letters/numbers):</label>
-            <input type="text" id="secretCode" class="config-input code-input" 
-                   placeholder="e.g., MED12" maxlength="5" 
-                   oninput="this.value = this.value.toUpperCase()">
-        </div>
-        
-        <button class="scan-btn" onclick="scanForDevices()">
-            🔍 Scan for Dispensers
-        </button>
-        
-        <div id="deviceList" class="device-list"></div>
-        
-        <div class="input-group">
-            <label class="input-label">Or enter IP manually:</label>
-            <input type="text" id="manualIp" class="config-input" 
-                   placeholder="192.168.1.100">
-        </div>
-        
-        <button class="save-btn" onclick="connectToDevice()">
-            Connect
-        </button>
-    </div>
-
-    <div id="connectedDeviceInfo" style="display:none;">
-        <div class="config-section">
-            <h3>Connected Device</h3>
-            <div class="secret-code-display" id="displaySecretCode"></div>
-            <p>Use this code to connect from other devices</p>
-            <div id="qrcode"></div>
-        </div>
-    </div>
-
-    <div id="medicationControls" style="display:none;">
-        <div class="med-card">
-            <span class="med-label">Glipizide</span>
-            <div class="input-row">
-                <input type="time" id="t-glipizide">
-                <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
-            </div>
-            <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
-            <div id="s-glipizide" class="status">Alarm Set</div>
-        </div>
-
-        <div class="med-card">
-            <span class="med-label">Omee Tablet</span>
-            <div class="input-row">
-                <input type="time" id="t-omee">
-                <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
-            </div>
-            <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
-            <div id="s-omee" class="status">Alarm Set</div>
-        </div>
-
-        <div class="med-card">
-            <span class="med-label">Dolo 650</span>
-            <div class="input-row">
-                <input type="time" id="t-dolo">
-                <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
-            </div>
-            <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
-            <div id="s-dolo" class="status">Alarm Set</div>
-        </div>
-
-        <div class="med-card">
-            <span class="med-label">Paracetamol</span>
-            <div class="input-row">
-                <input type="time" id="t-paracetamol">
-                <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
-            </div>
-            <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
-            <div id="s-paracetamol" class="status">Alarm Set</div>
-        </div>
+        <h3>Dispenser Configuration</h3>
+        <input type="text" id="espIp" class="config-input" placeholder="ESP8266 IP Address (e.g., 192.168.1.100)">
+        <button class="save-btn" onclick="saveConfig()">Save Configuration</button>
     </div>
 
     <div id="notification" class="notification"></div>
 
-    <!-- QR Code Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    
     <script>
         // Configuration
         let config = {
-            secretCode: localStorage.getItem('medimate_secret') || '',
-            deviceIp: localStorage.getItem('medimate_ip') || '',
-            deviceId: localStorage.getItem('medimate_deviceId') || '',
-            devicePort: localStorage.getItem('medimate_port') || '8080',
+            espIp: localStorage.getItem('espIp') || '',
             alarms: {
                 glipizide: localStorage.getItem('alarm_glipizide') || null,
                 omee: localStorage.getItem('alarm_omee') || null,
                 dolo: localStorage.getItem('alarm_dolo') || null,
                 paracetamol: localStorage.getItem('alarm_paracetamol') || null
             },
-            connected: false,
-            scanTimeout: 5000 // 5 seconds scan timeout
+            connected: false
         };
 
         // DOM elements
         const connStatus = document.getElementById('connStatus');
         const connText = document.getElementById('connText');
-        const connDeviceId = document.getElementById('connDeviceId');
-        const secretCodeInput = document.getElementById('secretCode');
-        const manualIpInput = document.getElementById('manualIp');
-        const deviceList = document.getElementById('deviceList');
+        const connIp = document.getElementById('connIp');
+        const espIpInput = document.getElementById('espIp');
         const notification = document.getElementById('notification');
-        const medicationControls = document.getElementById('medicationControls');
-        const connectedDeviceInfo = document.getElementById('connectedDeviceInfo');
-        const displaySecretCode = document.getElementById('displaySecretCode');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            secretCodeInput.value = config.secretCode;
-            manualIpInput.value = config.deviceIp;
+            espIpInput.value = config.espIp;
             loadAlarms();
             updateClock();
-            
-            // Auto-connect if we have saved credentials
-            if (config.secretCode && config.deviceIp) {
-                setTimeout(connectToDevice, 1000);
-            }
-            
+            checkConnection();
             setInterval(updateClock, 1000);
+            setInterval(checkConnection, 5000);
             setInterval(checkAlarms, 1000);
         });
 
@@ -476,171 +339,32 @@
                 });
         }
 
-        async function scanForDevices() {
-            deviceList.innerHTML = '<div style="text-align:center; padding:20px;">Scanning network...</div>';
-            connStatus.className = 'status-indicator connecting';
-            connText.textContent = 'Scanning...';
-            
-            // Generate common local IP ranges to scan
-            const ipRanges = [];
-            for (let i = 1; i <= 255; i++) {
-                ipRanges.push(`192.168.1.${i}`);
-                ipRanges.push(`192.168.0.${i}`);
-                ipRanges.push(`10.0.0.${i}`);
-            }
-            
-            const foundDevices = [];
-            
-            // Scan for devices on port 8080
-            for (const ip of ipRanges.slice(0, 50)) { // Limit to first 50 IPs for speed
-                try {
-                    const response = await fetchWithTimeout(`http://${ip}:8080/discover`, 200);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.type === 'medimate-dispenser') {
-                            foundDevices.push({
-                                ip: ip,
-                                id: data.id,
-                                device: data.device,
-                                port: data.port || 8080
-                            });
-                        }
-                    }
-                } catch (error) {
-                    // Continue scanning other IPs
-                }
-            }
-            
-            displayDeviceList(foundDevices);
-        }
-
-        function fetchWithTimeout(url, timeout = 5000) {
-            return Promise.race([
-                fetch(url, { mode: 'no-cors' }),
-                new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Timeout')), timeout)
-                )
-            ]);
-        }
-
-        function displayDeviceList(devices) {
-            deviceList.innerHTML = '';
-            
-            if (devices.length === 0) {
-                deviceList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No dispensers found</div>';
+        async function checkConnection() {
+            if (!config.espIp) {
                 connStatus.className = 'status-indicator disconnected';
-                connText.textContent = 'Disconnected';
+                connText.textContent = 'Please set ESP8266 IP address';
+                connIp.textContent = '';
+                config.connected = false;
                 return;
             }
-            
-            devices.forEach(device => {
-                const div = document.createElement('div');
-                div.className = 'device-item';
-                div.innerHTML = `
-                    <strong>${device.device}</strong><br>
-                    <span class="device-id">ID: ${device.id}</span><br>
-                    <small>${device.ip}:${device.port}</small>
-                `;
-                div.onclick = () => {
-                    manualIpInput.value = device.ip;
-                    secretCodeInput.focus();
-                    showNotification(`Selected ${device.device}`, 'info');
-                };
-                deviceList.appendChild(div);
-            });
-            
-            showNotification(`Found ${devices.length} dispenser(s)`, 'success');
-        }
 
-        async function connectToDevice() {
-            const secretCode = secretCodeInput.value.trim().toUpperCase();
-            const deviceIp = manualIpInput.value.trim();
-            const port = config.devicePort;
-            
-            if (!secretCode || secretCode.length !== 5) {
-                showNotification('Please enter a 5-character secret code', 'error');
-                return;
-            }
-            
-            if (!deviceIp) {
-                showNotification('Please enter device IP or scan for devices', 'error');
-                return;
-            }
-            
-            connStatus.className = 'status-indicator connecting';
-            connText.textContent = 'Connecting...';
-            
             try {
-                // Test connection with secret code
-                const response = await fetch(`http://${deviceIp}:${port}/health?code=${secretCode}`);
+                const response = await fetch(`http://${config.espIp}/health`, { 
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Save configuration
-                config.secretCode = secretCode;
-                config.deviceIp = deviceIp;
-                config.deviceId = data.id;
-                config.devicePort = data.port || port;
-                config.connected = true;
-                
-                localStorage.setItem('medimate_secret', secretCode);
-                localStorage.setItem('medimate_ip', deviceIp);
-                localStorage.setItem('medimate_deviceId', data.id);
-                localStorage.setItem('medimate_port', config.devicePort);
-                
-                // Update UI
                 connStatus.className = 'status-indicator connected';
-                connText.textContent = `Connected to ${data.device}`;
-                connDeviceId.textContent = `ID: ${data.id}`;
-                
-                // Show medication controls
-                medicationControls.style.display = 'block';
-                connectedDeviceInfo.style.display = 'block';
-                
-                // Display secret code and generate QR
-                displaySecretCode.textContent = secretCode;
-                generateQRCode(secretCode, deviceIp, data.id);
-                
-                showNotification(`Connected to ${data.device} successfully!`, 'success');
-                speak(`Connected to MediMate dispenser`);
-                
+                connText.textContent = 'Connected to Dispenser';
+                connIp.textContent = `IP: ${config.espIp}`;
+                config.connected = true;
             } catch (error) {
                 connStatus.className = 'status-indicator disconnected';
-                connText.textContent = 'Connection failed';
-                showNotification(`Connection failed: ${error.message}`, 'error');
+                connText.textContent = 'Disconnected from Dispenser';
+                connIp.textContent = `IP: ${config.espIp}`;
                 config.connected = false;
             }
-        }
-
-        function generateQRCode(secretCode, ip, deviceId) {
-            const qrData = JSON.stringify({
-                secret: secretCode,
-                ip: ip,
-                port: config.devicePort,
-                device: deviceId,
-                timestamp: Date.now()
-            });
-            
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.innerHTML = '';
-            
-            QRCode.toCanvas(qrcodeDiv, qrData, {
-                width: 200,
-                height: 200,
-                margin: 1,
-                color: {
-                    dark: '#0056b3',
-                    light: '#ffffff'
-                }
-            }, function(error) {
-                if (error) {
-                    console.error('QR Code generation failed:', error);
-                }
-            });
         }
 
         function loadAlarms() {
@@ -650,6 +374,13 @@
                     document.getElementById(`s-${med}`).classList.add('alarm-set');
                 }
             }
+        }
+
+        function saveConfig() {
+            config.espIp = espIpInput.value;
+            localStorage.setItem('espIp', config.espIp);
+            showNotification('Configuration saved!', 'success');
+            checkConnection();
         }
 
         function setAlarm(med) {
@@ -689,15 +420,7 @@
             }
             
             try {
-                const response = await fetch(
-                    `http://${config.deviceIp}:${config.devicePort}/dispense?code=${config.secretCode}&pill=${med}time`
-                );
-                
-                if (!response.ok) {
-                    throw new Error('Dispense failed');
-                }
-                
-                const data = await response.json();
+                const response = await fetch(`http://${config.espIp}/dispense?pill=${med}time`);
                 speak(`Attention! It is time to take your ${med} medicine.`);
                 showNotification(`${med} dispensed successfully!`, 'success');
             } catch (error) {
@@ -712,15 +435,7 @@
             }
             
             try {
-                const response = await fetch(
-                    `http://${config.deviceIp}:${config.devicePort}/dispense?code=${config.secretCode}&pill=${pill}`
-                );
-                
-                if (!response.ok) {
-                    throw new Error('Manual open failed');
-                }
-                
-                const data = await response.json();
+                const response = await fetch(`http://${config.espIp}/dispense?pill=${pill}`);
                 speak(`Manually opening ${pill} box`);
                 showNotification(`${pill} box opened`, 'info');
             } catch (error) {
