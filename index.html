@@ -13,8 +13,7 @@
             --success: #28a745;
             --error: #dc3545;
             --warning: #ffc107;
-            --connected: #28a745;
-            --disconnected: #dc3545;
+            --info: #17a2b8;
         }
         
         body { 
@@ -52,65 +51,30 @@
             opacity: 0.9;
         }
         
-        .connection-panel {
+        .connection-status {
             background: var(--card-bg);
-            padding: 25px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             width: 100%;
             max-width: 500px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .status-indicator {
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             margin-right: 10px;
             display: inline-block;
-            vertical-align: middle;
         }
         
-        .connected { background: var(--connected); box-shadow: 0 0 10px var(--connected); }
-        .disconnected { background: var(--disconnected); }
+        .connected { background: var(--success); }
+        .disconnected { background: var(--error); }
         .connecting { background: var(--warning); }
-        
-        .code-input {
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-align: center;
-            text-transform: uppercase;
-            font-family: monospace;
-        }
-        
-        .code-input:focus {
-            border-color: var(--primary-blue);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0,86,179,0.1);
-        }
-        
-        .connect-btn {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-        
-        .connect-btn:hover {
-            background-color: #004494;
-        }
         
         .med-card { 
             background: var(--card-bg); 
@@ -120,12 +84,11 @@
             width: 100%; 
             max-width: 500px; 
             margin-bottom: 20px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.3s ease;
         }
         
-        .disabled {
-            opacity: 0.6;
-            pointer-events: none;
+        .med-card:hover {
+            transform: translateY(-5px);
         }
         
         .med-label { 
@@ -152,6 +115,11 @@
             transition: border-color 0.3s;
         }
         
+        input[type="time"]:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+        }
+        
         .enter-btn { 
             background: var(--primary-blue); 
             color: white; 
@@ -164,13 +132,8 @@
             transition: background-color 0.3s;
         }
         
-        .enter-btn:hover:not(:disabled) {
+        .enter-btn:hover {
             background-color: #004494;
-        }
-        
-        .enter-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
         }
         
         .manual-btn { 
@@ -187,15 +150,9 @@
             margin-bottom: 10px;
         }
         
-        .manual-btn:hover:not(:disabled) { 
+        .manual-btn:hover { 
             background: var(--primary-blue); 
             color: white; 
-        }
-        
-        .manual-btn:disabled {
-            border-color: #cccccc;
-            color: #cccccc;
-            cursor: not-allowed;
         }
         
         .status { 
@@ -212,6 +169,93 @@
             display: block !important;
         }
         
+        .config-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        
+        .code-input {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .config-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .save-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .scan-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .device-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .device-item {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .device-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .device-id {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
         .notification {
             position: fixed;
             top: 20px;
@@ -223,37 +267,41 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             display: none;
-            max-width: 350px;
+            max-width: 300px;
         }
         
         .notification.success { background: var(--success); }
         .notification.error { background: var(--error); }
-        .notification.info { background: var(--primary-blue); }
+        .notification.info { background: var(--info); }
+        .notification.warning { background: var(--warning); }
         
-        .device-info {
+        .qr-section {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        #qrcode {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .secret-code-display {
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            letter-spacing: 3px;
             background: #f8f9fa;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--primary-blue);
-        }
-        
-        .scan-btn {
-            background: transparent;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-        
-        .scan-btn:hover {
-            background: var(--primary-blue);
-            color: white;
+            margin: 15px 0;
+            text-align: center;
+            border: 2px dashed #ddd;
         }
     </style>
 </head>
@@ -263,99 +311,140 @@
         <div id="date">Loading...</div>
     </div>
     
-    <div class="connection-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-            <div>
-                <span id="connStatus" class="status-indicator disconnected"></span>
-                <span id="connText" style="font-weight: 600;">Disconnected</span>
-            </div>
-            <span id="connCode" style="font-weight: bold; color: var(--primary-blue);"></span>
+    <div class="connection-status">
+        <div>
+            <span id="connStatus" class="status-indicator disconnected"></span>
+            <span id="connText">Disconnected</span>
+        </div>
+        <div id="connDeviceId"></div>
+    </div>
+
+    <div class="config-section">
+        <h3>Connect to Dispenser</h3>
+        
+        <div class="input-group">
+            <label class="input-label">Secret Code (5 letters/numbers):</label>
+            <input type="text" id="secretCode" class="config-input code-input" 
+                   placeholder="e.g., MED12" maxlength="5" 
+                   oninput="this.value = this.value.toUpperCase()">
         </div>
         
-        <input type="text" id="secretCode" class="code-input" maxlength="6" placeholder="Enter 6-letter code" oninput="this.value = this.value.toUpperCase()">
+        <button class="scan-btn" onclick="scanForDevices()">
+            🔍 Scan for Dispensers
+        </button>
         
-        <button class="connect-btn" onclick="connectToDevice()">Connect to Dispenser</button>
+        <div id="deviceList" class="device-list"></div>
         
-        <div style="text-align: center; margin-top: 15px;">
-            <button class="scan-btn" onclick="startDiscovery()">🔍 Scan for Devices</button>
+        <div class="input-group">
+            <label class="input-label">Or enter IP manually:</label>
+            <input type="text" id="manualIp" class="config-input" 
+                   placeholder="192.168.1.100">
         </div>
         
-        <div id="deviceInfo" class="device-info" style="display: none;">
-            <div><strong>Connected Device:</strong> <span id="deviceName"></span></div>
-            <div><strong>Code:</strong> <span id="deviceCode"></span></div>
-            <div><strong>Session:</strong> <span id="deviceSession"></span></div>
+        <button class="save-btn" onclick="connectToDevice()">
+            Connect
+        </button>
+    </div>
+
+    <div id="connectedDeviceInfo" style="display:none;">
+        <div class="config-section">
+            <h3>Connected Device</h3>
+            <div class="secret-code-display" id="displaySecretCode"></div>
+            <p>Use this code to connect from other devices</p>
+            <div id="qrcode"></div>
         </div>
     </div>
 
-    <div id="medCards">
-        <div class="med-card disabled">
+    <div id="medicationControls" style="display:none;">
+        <div class="med-card">
             <span class="med-label">Glipizide</span>
             <div class="input-row">
-                <input type="time" id="t-glipizide" disabled>
-                <button class="enter-btn" onclick="setAlarm('glipizide')" disabled>Set Alarm</button>
+                <input type="time" id="t-glipizide">
+                <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
             </div>
-            <button class="manual-btn" onclick="manualOpen('glipizide')" disabled>Manual Open</button>
+            <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
             <div id="s-glipizide" class="status">Alarm Set</div>
         </div>
 
-        <div class="med-card disabled">
+        <div class="med-card">
             <span class="med-label">Omee Tablet</span>
             <div class="input-row">
-                <input type="time" id="t-omee" disabled>
-                <button class="enter-btn" onclick="setAlarm('omee')" disabled>Set Alarm</button>
+                <input type="time" id="t-omee">
+                <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
             </div>
-            <button class="manual-btn" onclick="manualOpen('omee')" disabled>Manual Open</button>
+            <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
             <div id="s-omee" class="status">Alarm Set</div>
         </div>
 
-        <div class="med-card disabled">
+        <div class="med-card">
             <span class="med-label">Dolo 650</span>
             <div class="input-row">
-                <input type="time" id="t-dolo" disabled>
-                <button class="enter-btn" onclick="setAlarm('dolo')" disabled>Set Alarm</button>
+                <input type="time" id="t-dolo">
+                <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
             </div>
-            <button class="manual-btn" onclick="manualOpen('dolo')" disabled>Manual Open</button>
+            <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
             <div id="s-dolo" class="status">Alarm Set</div>
         </div>
 
-        <div class="med-card disabled">
+        <div class="med-card">
             <span class="med-label">Paracetamol</span>
             <div class="input-row">
-                <input type="time" id="t-paracetamol" disabled>
-                <button class="enter-btn" onclick="setAlarm('paracetamol')" disabled>Set Alarm</button>
+                <input type="time" id="t-paracetamol">
+                <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
             </div>
-            <button class="manual-btn" onclick="manualOpen('paracetamol')" disabled>Manual Open</button>
+            <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
             <div id="s-paracetamol" class="status">Alarm Set</div>
         </div>
     </div>
 
     <div id="notification" class="notification"></div>
 
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
     <script>
-        // State Management
-        let state = {
+        // Configuration
+        let config = {
+            secretCode: localStorage.getItem('medimate_secret') || '',
+            deviceIp: localStorage.getItem('medimate_ip') || '',
+            deviceId: localStorage.getItem('medimate_deviceId') || '',
+            devicePort: localStorage.getItem('medimate_port') || '8080',
+            alarms: {
+                glipizide: localStorage.getItem('alarm_glipizide') || null,
+                omee: localStorage.getItem('alarm_omee') || null,
+                dolo: localStorage.getItem('alarm_dolo') || null,
+                paracetamol: localStorage.getItem('alarm_paracetamol') || null
+            },
             connected: false,
-            session: null,
-            deviceCode: null,
-            alarms: {},
-            discoveredDevices: []
+            scanTimeout: 5000 // 5 seconds scan timeout
         };
 
-        // DOM Elements
-        const notification = document.getElementById('notification');
+        // DOM elements
+        const connStatus = document.getElementById('connStatus');
+        const connText = document.getElementById('connText');
+        const connDeviceId = document.getElementById('connDeviceId');
         const secretCodeInput = document.getElementById('secretCode');
-        const medCards = document.getElementById('medCards');
+        const manualIpInput = document.getElementById('manualIp');
+        const deviceList = document.getElementById('deviceList');
+        const notification = document.getElementById('notification');
+        const medicationControls = document.getElementById('medicationControls');
+        const connectedDeviceInfo = document.getElementById('connectedDeviceInfo');
+        const displaySecretCode = document.getElementById('displaySecretCode');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            secretCodeInput.value = config.secretCode;
+            manualIpInput.value = config.deviceIp;
+            loadAlarms();
             updateClock();
-            loadSavedData();
+            
+            // Auto-connect if we have saved credentials
+            if (config.secretCode && config.deviceIp) {
+                setTimeout(connectToDevice, 1000);
+            }
+            
             setInterval(updateClock, 1000);
             setInterval(checkAlarms, 1000);
-            setInterval(checkConnection, 10000); // Check every 10 seconds
-            
-            // Auto-focus code input
-            secretCodeInput.focus();
         });
 
         function showNotification(message, type = 'info', duration = 3000) {
@@ -387,228 +476,189 @@
                 });
         }
 
-        function loadSavedData() {
-            // Load saved alarms
-            const savedAlarms = localStorage.getItem('medimate_alarms');
-            if (savedAlarms) {
-                state.alarms = JSON.parse(savedAlarms);
-                for (const [med, time] of Object.entries(state.alarms)) {
-                    if (time) {
-                        document.getElementById(`t-${med}`).value = time;
-                        document.getElementById(`s-${med}`).classList.add('alarm-set');
-                    }
-                }
+        async function scanForDevices() {
+            deviceList.innerHTML = '<div style="text-align:center; padding:20px;">Scanning network...</div>';
+            connStatus.className = 'status-indicator connecting';
+            connText.textContent = 'Scanning...';
+            
+            // Generate common local IP ranges to scan
+            const ipRanges = [];
+            for (let i = 1; i <= 255; i++) {
+                ipRanges.push(`192.168.1.${i}`);
+                ipRanges.push(`192.168.0.${i}`);
+                ipRanges.push(`10.0.0.${i}`);
             }
             
-            // Load saved device code
-            const savedCode = localStorage.getItem('medimate_device_code');
-            if (savedCode) {
-                secretCodeInput.value = savedCode;
-            }
-        }
-
-        function saveAlarms() {
-            localStorage.setItem('medimate_alarms', JSON.stringify(state.alarms));
-        }
-
-        async function startDiscovery() {
-            showNotification("🔍 Scanning for devices...", "info");
+            const foundDevices = [];
             
-            // Try common local IP ranges
-            const baseIPs = [];
-            for (let i = 1; i <= 254; i++) {
-                baseIPs.push(`192.168.1.${i}`);
-                baseIPs.push(`192.168.0.${i}`);
-                baseIPs.push(`10.0.0.${i}`);
-            }
-            
-            let foundDevice = null;
-            
-            // Check a few common IPs first
-            const commonIPs = [
-                '192.168.1.100', '192.168.1.101', '192.168.1.102',
-                '192.168.0.100', '192.168.0.101', '192.168.0.102',
-                '10.0.0.100', '10.0.0.101'
-            ];
-            
-            for (const ip of commonIPs) {
+            // Scan for devices on port 8080
+            for (const ip of ipRanges.slice(0, 50)) { // Limit to first 50 IPs for speed
                 try {
-                    const response = await fetch(`http://${ip}/discover`, { 
-                        method: 'GET',
-                        mode: 'no-cors',
-                        cache: 'no-store',
-                        timeout: 1000
-                    }).catch(() => null);
-                    
-                    if (response && response.ok) {
+                    const response = await fetchWithTimeout(`http://${ip}:8080/discover`, 200);
+                    if (response.ok) {
                         const data = await response.json();
-                        if (data.device === 'medimate') {
-                            foundDevice = data;
-                            secretCodeInput.value = data.code;
-                            showNotification(`Found device: ${data.code} at ${ip}`, 'success');
-                            break;
+                        if (data.type === 'medimate-dispenser') {
+                            foundDevices.push({
+                                ip: ip,
+                                id: data.id,
+                                device: data.device,
+                                port: data.port || 8080
+                            });
                         }
                     }
                 } catch (error) {
-                    // Continue scanning
+                    // Continue scanning other IPs
                 }
             }
             
-            if (!foundDevice) {
-                showNotification("No devices found. Please enter code manually.", "info");
-            }
+            displayDeviceList(foundDevices);
         }
 
-        async function connectToDevice() {
-            const code = secretCodeInput.value.trim().toUpperCase();
+        function fetchWithTimeout(url, timeout = 5000) {
+            return Promise.race([
+                fetch(url, { mode: 'no-cors' }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), timeout)
+                )
+            ]);
+        }
+
+        function displayDeviceList(devices) {
+            deviceList.innerHTML = '';
             
-            if (code.length !== 6) {
-                showNotification("Please enter a 6-letter code", "error");
+            if (devices.length === 0) {
+                deviceList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No dispensers found</div>';
+                connStatus.className = 'status-indicator disconnected';
+                connText.textContent = 'Disconnected';
                 return;
             }
             
-            showNotification(`Connecting to device ${code}...`, "info");
+            devices.forEach(device => {
+                const div = document.createElement('div');
+                div.className = 'device-item';
+                div.innerHTML = `
+                    <strong>${device.device}</strong><br>
+                    <span class="device-id">ID: ${device.id}</span><br>
+                    <small>${device.ip}:${device.port}</small>
+                `;
+                div.onclick = () => {
+                    manualIpInput.value = device.ip;
+                    secretCodeInput.focus();
+                    showNotification(`Selected ${device.device}`, 'info');
+                };
+                deviceList.appendChild(div);
+            });
             
-            // Try to discover device first
-            try {
-                const discoverResponse = await fetch(`http://${code}.local/discover`);
-                if (discoverResponse.ok) {
-                    const data = await discoverResponse.json();
-                    if (data.code === code) {
-                        await establishConnection(data.ip, code);
-                        return;
-                    }
-                }
-            } catch (error) {
-                // Try direct IP scanning
-            }
-            
-            // If mDNS fails, try scanning common IPs
-            const commonIPs = [
-                '192.168.1.100', '192.168.1.101', '192.168.1.102',
-                '192.168.0.100', '192.168.0.101', '192.168.0.102'
-            ];
-            
-            for (const ip of commonIPs) {
-                try {
-                    const response = await fetch(`http://${ip}/connect?code=${code}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.status === 'connected') {
-                            await establishConnection(ip, code, data.session);
-                            return;
-                        }
-                    }
-                } catch (error) {
-                    continue;
-                }
-            }
-            
-            showNotification("Device not found. Check code and network.", "error");
+            showNotification(`Found ${devices.length} dispenser(s)`, 'success');
         }
 
-        async function establishConnection(ip, code, session = null) {
+        async function connectToDevice() {
+            const secretCode = secretCodeInput.value.trim().toUpperCase();
+            const deviceIp = manualIpInput.value.trim();
+            const port = config.devicePort;
+            
+            if (!secretCode || secretCode.length !== 5) {
+                showNotification('Please enter a 5-character secret code', 'error');
+                return;
+            }
+            
+            if (!deviceIp) {
+                showNotification('Please enter device IP or scan for devices', 'error');
+                return;
+            }
+            
+            connStatus.className = 'status-indicator connecting';
+            connText.textContent = 'Connecting...';
+            
             try {
-                const response = await fetch(`http://${ip}/connect?code=${code}`);
+                // Test connection with secret code
+                const response = await fetch(`http://${deviceIp}:${port}/health?code=${secretCode}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
-                if (data.status === 'connected') {
-                    state.connected = true;
-                    state.session = data.session;
-                    state.deviceCode = code;
-                    
-                    // Update UI
-                    document.getElementById('connStatus').className = 'status-indicator connected';
-                    document.getElementById('connText').textContent = 'Connected';
-                    document.getElementById('connCode').textContent = `Code: ${code}`;
-                    
-                    // Enable medication cards
-                    const cards = medCards.querySelectorAll('.med-card');
-                    const inputs = medCards.querySelectorAll('input, button');
-                    cards.forEach(card => card.classList.remove('disabled'));
-                    inputs.forEach(input => input.disabled = false);
-                    
-                    // Show device info
-                    document.getElementById('deviceInfo').style.display = 'block';
-                    document.getElementById('deviceName').textContent = data.device;
-                    document.getElementById('deviceCode').textContent = code;
-                    document.getElementById('deviceSession').textContent = data.session.substring(0, 8) + '...';
-                    
-                    // Save to localStorage
-                    localStorage.setItem('medimate_device_code', code);
-                    
-                    showNotification(`✅ Connected to ${data.device}!`, 'success');
-                    speak("Connected to MediMate dispenser");
-                    
-                    // Start heartbeat
-                    startHeartbeat(ip);
-                    
-                } else {
-                    showNotification(data.error || "Connection failed", "error");
-                }
+                // Save configuration
+                config.secretCode = secretCode;
+                config.deviceIp = deviceIp;
+                config.deviceId = data.id;
+                config.devicePort = data.port || port;
+                config.connected = true;
+                
+                localStorage.setItem('medimate_secret', secretCode);
+                localStorage.setItem('medimate_ip', deviceIp);
+                localStorage.setItem('medimate_deviceId', data.id);
+                localStorage.setItem('medimate_port', config.devicePort);
+                
+                // Update UI
+                connStatus.className = 'status-indicator connected';
+                connText.textContent = `Connected to ${data.device}`;
+                connDeviceId.textContent = `ID: ${data.id}`;
+                
+                // Show medication controls
+                medicationControls.style.display = 'block';
+                connectedDeviceInfo.style.display = 'block';
+                
+                // Display secret code and generate QR
+                displaySecretCode.textContent = secretCode;
+                generateQRCode(secretCode, deviceIp, data.id);
+                
+                showNotification(`Connected to ${data.device} successfully!`, 'success');
+                speak(`Connected to MediMate dispenser`);
+                
             } catch (error) {
-                showNotification("Connection error: " + error.message, "error");
+                connStatus.className = 'status-indicator disconnected';
+                connText.textContent = 'Connection failed';
+                showNotification(`Connection failed: ${error.message}`, 'error');
+                config.connected = false;
             }
         }
 
-        function startHeartbeat(ip) {
-            setInterval(async () => {
-                if (!state.connected) return;
-                
-                try {
-                    const response = await fetch(`http://${ip}/status`);
-                    const data = await response.json();
-                    
-                    if (data.status !== 'online') {
-                        disconnectDevice();
-                    }
-                } catch (error) {
-                    disconnectDevice();
+        function generateQRCode(secretCode, ip, deviceId) {
+            const qrData = JSON.stringify({
+                secret: secretCode,
+                ip: ip,
+                port: config.devicePort,
+                device: deviceId,
+                timestamp: Date.now()
+            });
+            
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            QRCode.toCanvas(qrcodeDiv, qrData, {
+                width: 200,
+                height: 200,
+                margin: 1,
+                color: {
+                    dark: '#0056b3',
+                    light: '#ffffff'
                 }
-            }, 5000); // Check every 5 seconds
+            }, function(error) {
+                if (error) {
+                    console.error('QR Code generation failed:', error);
+                }
+            });
         }
 
-        function disconnectDevice() {
-            state.connected = false;
-            state.session = null;
-            
-            document.getElementById('connStatus').className = 'status-indicator disconnected';
-            document.getElementById('connText').textContent = 'Disconnected';
-            document.getElementById('connCode').textContent = '';
-            document.getElementById('deviceInfo').style.display = 'none';
-            
-            // Disable medication cards
-            const cards = medCards.querySelectorAll('.med-card');
-            const inputs = medCards.querySelectorAll('input, button');
-            cards.forEach(card => card.classList.add('disabled'));
-            inputs.forEach(input => input.disabled = true);
-            
-            showNotification("Disconnected from device", "error");
-        }
-
-        async function checkConnection() {
-            if (!state.connected) return;
-            
-            // Try to get status from current device
-            try {
-                await fetch(`http://${state.deviceCode}.local/status`);
-            } catch (error) {
-                disconnectDevice();
+        function loadAlarms() {
+            for (const med in config.alarms) {
+                if (config.alarms[med]) {
+                    document.getElementById(`t-${med}`).value = config.alarms[med];
+                    document.getElementById(`s-${med}`).classList.add('alarm-set');
+                }
             }
         }
 
         function setAlarm(med) {
-            if (!state.connected) {
-                showNotification("Please connect to a device first", "error");
-                return;
-            }
-            
             const timeVal = document.getElementById(`t-${med}`).value;
             if (timeVal) {
-                state.alarms[med] = timeVal;
-                saveAlarms();
+                config.alarms[med] = timeVal;
+                localStorage.setItem(`alarm_${med}`, timeVal);
                 document.getElementById(`s-${med}`).classList.add('alarm-set');
-                showNotification(`⏰ Alarm set for ${med} at ${timeVal}`, 'success');
+                showNotification(`Alarm set for ${med} at ${timeVal}`, 'success');
                 speak(`Alarm set for ${med}`);
             } else {
                 showNotification('Please select a time', 'error');
@@ -616,16 +666,16 @@
         }
 
         function checkAlarms() {
-            if (!state.connected) return;
+            if (!config.connected) return;
             
             const now = new Date();
             const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
             
-            for (const [med, alarmTime] of Object.entries(state.alarms)) {
-                if (alarmTime === currentTime) {
+            for (const med in config.alarms) {
+                if (config.alarms[med] === currentTime) {
                     triggerDispense(med);
-                    delete state.alarms[med];
-                    saveAlarms();
+                    config.alarms[med] = null;
+                    localStorage.removeItem(`alarm_${med}`);
                     document.getElementById(`s-${med}`).classList.remove('alarm-set');
                     document.getElementById(`t-${med}`).value = '';
                 }
@@ -633,44 +683,48 @@
         }
 
         async function triggerDispense(med) {
-            if (!state.connected || !state.session) {
-                showNotification("Cannot dispense: Not connected", "error");
+            if (!config.connected) {
+                showNotification('Cannot dispense: Not connected to dispenser', 'error');
                 return;
             }
             
             try {
-                const response = await fetch(`http://${state.deviceCode}.local/dispense?pill=${med}time&session=${state.session}`);
-                const data = await response.json();
+                const response = await fetch(
+                    `http://${config.deviceIp}:${config.devicePort}/dispense?code=${config.secretCode}&pill=${med}time`
+                );
                 
-                if (data.status === 'success') {
-                    speak(`Attention! It is time to take your ${med} medicine.`);
-                    showNotification(`✅ ${med} dispensed!`, 'success');
-                } else {
-                    showNotification(data.error || "Dispense failed", "error");
+                if (!response.ok) {
+                    throw new Error('Dispense failed');
                 }
+                
+                const data = await response.json();
+                speak(`Attention! It is time to take your ${med} medicine.`);
+                showNotification(`${med} dispensed successfully!`, 'success');
             } catch (error) {
-                showNotification("Failed to dispense: " + error.message, "error");
+                showNotification('Failed to dispense medicine', 'error');
             }
         }
 
         async function manualOpen(pill) {
-            if (!state.connected || !state.session) {
-                showNotification("Please connect to a device first", "error");
+            if (!config.connected) {
+                showNotification('Cannot open: Not connected to dispenser', 'error');
                 return;
             }
             
             try {
-                const response = await fetch(`http://${state.deviceCode}.local/dispense?pill=${pill}&session=${state.session}`);
-                const data = await response.json();
+                const response = await fetch(
+                    `http://${config.deviceIp}:${config.devicePort}/dispense?code=${config.secretCode}&pill=${pill}`
+                );
                 
-                if (data.status === 'success') {
-                    speak(`Manually opening ${pill} box`);
-                    showNotification(`📦 ${pill} box opened`, 'info');
-                } else {
-                    showNotification(data.error || "Failed to open", "error");
+                if (!response.ok) {
+                    throw new Error('Manual open failed');
                 }
+                
+                const data = await response.json();
+                speak(`Manually opening ${pill} box`);
+                showNotification(`${pill} box opened`, 'info');
             } catch (error) {
-                showNotification("Failed to open box: " + error.message, "error");
+                showNotification('Failed to open box', 'error');
             }
         }
 
@@ -679,7 +733,7 @@
                 const msg = new SpeechSynthesisUtterance();
                 msg.text = text;
                 msg.volume = 1;
-                msg.rate = 0.9;
+                msg.rate = 1;
                 msg.pitch = 1;
                 window.speechSynthesis.speak(msg);
             }
