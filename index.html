@@ -13,6 +13,11 @@
             --success: #28a745;
             --error: #dc3545;
             --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         body { 
@@ -61,6 +66,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .status-indicator {
@@ -73,7 +79,7 @@
         
         .connected { background: var(--success); }
         .disconnected { background: var(--error); }
-        .connecting { background: var(--warning); }
+        .ap-mode { background: var(--warning); }
         
         .med-card { 
             background: var(--card-bg); 
@@ -199,6 +205,10 @@
             margin-top: 10px;
         }
         
+        .save-btn:hover {
+            background: #218838;
+        }
+        
         .notification {
             position: fixed;
             top: 20px;
@@ -210,11 +220,114 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             display: none;
+            max-width: 350px;
         }
         
         .notification.success { background: var(--success); }
         .notification.error { background: var(--error); }
-        .notification.info { background: var(--primary-blue); }
+        .notification.info { background: var(--info); }
+        .notification.warning { background: var(--warning); color: #333; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .scan-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #e9ecef;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .pill-icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            #time {
+                font-size: 2rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .connection-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -223,64 +336,162 @@
         <div id="date">Loading...</div>
     </div>
     
-    <div class="connection-status">
-        <div>
-            <span id="connStatus" class="status-indicator disconnected"></span>
-            <span id="connText">Disconnected from Dispenser</span>
-        </div>
-        <div id="connIp"></div>
+    <div class="tab-container">
+        <button class="tab active" onclick="switchTab('control')">Control Panel</button>
+        <button class="tab" onclick="switchTab('setup')">WiFi Setup</button>
+        <button class="tab" onclick="switchTab('settings')">Settings</button>
     </div>
-
-    <div class="med-card">
-        <span class="med-label">Glipizide</span>
-        <div class="input-row">
-            <input type="time" id="t-glipizide">
-            <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
+    
+    <!-- Control Panel Tab -->
+    <div id="control-tab" class="tab-content active">
+        <div class="connection-status">
+            <div>
+                <span id="connStatus" class="status-indicator disconnected"></span>
+                <span id="connText">Searching for dispenser...</span>
+            </div>
+            <div id="connIp"></div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
-        <div id="s-glipizide" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Omee Tablet</span>
-        <div class="input-row">
-            <input type="time" id="t-omee">
-            <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
+        <div class="med-card">
+            <span class="med-label"><span class="pill-icon">G</span>Glipizide</span>
+            <div class="input-row">
+                <input type="time" id="t-glipizide">
+                <button class="enter-btn" onclick="setAlarm('glipizide')">Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('glipizide')">Manual Open</button>
+            <div id="s-glipizide" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
-        <div id="s-omee" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Dolo 650</span>
-        <div class="input-row">
-            <input type="time" id="t-dolo">
-            <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
+        <div class="med-card">
+            <span class="med-label"><span class="pill-icon">O</span>Omee Tablet</span>
+            <div class="input-row">
+                <input type="time" id="t-omee">
+                <button class="enter-btn" onclick="setAlarm('omee')">Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('omee')">Manual Open</button>
+            <div id="s-omee" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
-        <div id="s-dolo" class="status">Alarm Set</div>
-    </div>
 
-    <div class="med-card">
-        <span class="med-label">Paracetamol</span>
-        <div class="input-row">
-            <input type="time" id="t-paracetamol">
-            <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
+        <div class="med-card">
+            <span class="med-label"><span class="pill-icon">D</span>Dolo 650</span>
+            <div class="input-row">
+                <input type="time" id="t-dolo">
+                <button class="enter-btn" onclick="setAlarm('dolo')">Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('dolo')">Manual Open</button>
+            <div id="s-dolo" class="status">Alarm Set</div>
         </div>
-        <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
-        <div id="s-paracetamol" class="status">Alarm Set</div>
-    </div>
 
-    <div class="config-section">
-        <h3>Dispenser Configuration</h3>
-        <input type="text" id="espIp" class="config-input" placeholder="ESP8266 IP Address (e.g., 192.168.1.100)">
-        <button class="save-btn" onclick="saveConfig()">Save Configuration</button>
+        <div class="med-card">
+            <span class="med-label"><span class="pill-icon">P</span>Paracetamol</span>
+            <div class="input-row">
+                <input type="time" id="t-paracetamol">
+                <button class="enter-btn" onclick="setAlarm('paracetamol')">Set Alarm</button>
+            </div>
+            <button class="manual-btn" onclick="manualOpen('paracetamol')">Manual Open</button>
+            <div id="s-paracetamol" class="status">Alarm Set</div>
+        </div>
+    </div>
+    
+    <!-- WiFi Setup Tab -->
+    <div id="setup-tab" class="tab-content">
+        <div class="config-section">
+            <h3>Dispenser Configuration</h3>
+            <div class="connection-status" style="margin-bottom: 20px;">
+                <div>
+                    <span id="setupStatus" class="status-indicator disconnected"></span>
+                    <span id="setupText">Not configured</span>
+                </div>
+            </div>
+            
+            <input type="text" id="espIp" class="config-input" placeholder="ESP8266 IP Address (e.g., 192.168.1.100)">
+            <button class="scan-btn" onclick="scanNetwork()">Scan for Device</button>
+            <button class="save-btn" onclick="saveConfig()">Save Configuration</button>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                <h4>Auto-discovery Status</h4>
+                <div id="discoveryStatus">Ready to scan</div>
+                <div id="discoveredDevices"></div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 10px;">
+                <h4>WiFi Setup Instructions</h4>
+                <ol style="text-align: left; margin-left: 20px;">
+                    <li>If device is not found, it may be in Access Point mode</li>
+                    <li>Connect to WiFi: <strong>MediMate-Dispenser</strong></li>
+                    <li>Password: <strong>medimate123</strong></li>
+                    <li>Go to <strong>192.168.4.1</strong> in your browser</li>
+                    <li>Configure your WiFi network there</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content">
+        <div class="config-section">
+            <h3>Application Settings</h3>
+            
+            <div style="margin-bottom: 20px;">
+                <label>Speech Alerts</label>
+                <select id="speechEnabled" class="config-input">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label>Notification Sound</label>
+                <select id="soundEnabled" class="config-input">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label>Auto-scan Interval (minutes)</label>
+                <input type="number" id="scanInterval" class="config-input" min="1" max="60" value="5">
+            </div>
+            
+            <button class="save-btn" onclick="saveAppSettings()">Save Settings</button>
+            
+            <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                <h4>Device Information</h4>
+                <div id="deviceInfo">Not connected</div>
+                <button class="manual-btn" onclick="getDeviceInfo()" style="margin-top: 10px;">Refresh Device Info</button>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 10px;">
+                <h4>⚠️ Reset All Settings</h4>
+                <p>This will clear all alarms and settings</p>
+                <button class="enter-btn" onclick="resetAllSettings()" style="background: var(--error);">Reset All Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- WiFi Setup Modal -->
+    <div id="wifiSetupModal" class="modal">
+        <div class="modal-content">
+            <h2>WiFi Setup Required</h2>
+            <p id="setupMessage">Please configure WiFi settings for the dispenser.</p>
+            
+            <div id="networkList" style="margin:20px 0;"></div>
+            
+            <input type="text" id="setupSSID" class="config-input" placeholder="WiFi Network Name (SSID)">
+            <input type="password" id="setupPassword" class="config-input" placeholder="WiFi Password">
+            
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="scanNetworks()" class="scan-btn">Scan Networks</button>
+                <button onclick="saveWiFiConfig()" class="enter-btn">Save & Connect</button>
+                <button onclick="closeSetupModal()" style="background:#ccc;color:#333;padding:12px;border:none;border-radius:8px;flex:1;">Skip</button>
+            </div>
+        </div>
     </div>
 
     <div id="notification" class="notification"></div>
 
     <script>
-        // Configuration
+        // Application Configuration
         let config = {
             espIp: localStorage.getItem('espIp') || '',
             alarms: {
@@ -289,26 +500,70 @@
                 dolo: localStorage.getItem('alarm_dolo') || null,
                 paracetamol: localStorage.getItem('alarm_paracetamol') || null
             },
-            connected: false
+            connected: false,
+            connectionMode: 'disconnected',
+            appSettings: {
+                speechEnabled: localStorage.getItem('speechEnabled') !== 'false',
+                soundEnabled: localStorage.getItem('soundEnabled') !== 'false',
+                scanInterval: parseInt(localStorage.getItem('scanInterval')) || 5
+            }
         };
 
         // DOM elements
         const connStatus = document.getElementById('connStatus');
         const connText = document.getElementById('connText');
         const connIp = document.getElementById('connIp');
+        const setupStatus = document.getElementById('setupStatus');
+        const setupText = document.getElementById('setupText');
         const espIpInput = document.getElementById('espIp');
         const notification = document.getElementById('notification');
+        const discoveryStatus = document.getElementById('discoveryStatus');
+        const discoveredDevices = document.getElementById('discoveredDevices');
+        const deviceInfo = document.getElementById('deviceInfo');
 
-        // Initialize
+        // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
+            // Load configuration
             espIpInput.value = config.espIp;
             loadAlarms();
+            loadAppSettings();
             updateClock();
+            
+            // Start connection checks
             checkConnection();
+            
+            // Set up intervals
             setInterval(updateClock, 1000);
-            setInterval(checkConnection, 5000);
+            setInterval(checkConnection, config.appSettings.scanInterval * 60000);
             setInterval(checkAlarms, 1000);
+            
+            // Auto-scan on startup
+            setTimeout(() => {
+                if (!config.connected) {
+                    discoverDevice();
+                }
+            }, 2000);
         });
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activate selected tab
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Refresh tab content if needed
+            if (tabName === 'setup') {
+                updateSetupStatus();
+            }
+        }
 
         function showNotification(message, type = 'info', duration = 3000) {
             notification.textContent = message;
@@ -328,7 +583,7 @@
             const displayHours = hours % 12 || 12;
             
             document.getElementById('time').textContent = 
-                `${displayHours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds} ${ampm}`;
+                `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
             
             document.getElementById('date').textContent = 
                 now.toLocaleDateString('en-US', { 
@@ -342,29 +597,197 @@
         async function checkConnection() {
             if (!config.espIp) {
                 connStatus.className = 'status-indicator disconnected';
-                connText.textContent = 'Please set ESP8266 IP address';
+                connText.textContent = 'Please configure device IP';
                 connIp.textContent = '';
                 config.connected = false;
-                return;
+                config.connectionMode = 'disconnected';
+                updateSetupStatus();
+                return false;
             }
 
             try {
                 const response = await fetch(`http://${config.espIp}/health`, { 
                     method: 'GET',
-                    mode: 'no-cors',
-                    cache: 'no-cache'
+                    cache: 'no-cache',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
                 
-                connStatus.className = 'status-indicator connected';
-                connText.textContent = 'Connected to Dispenser';
-                connIp.textContent = `IP: ${config.espIp}`;
-                config.connected = true;
+                if (!response.ok) throw new Error('HTTP error');
+                
+                const data = await response.json();
+                
+                if (data.status === 'connected') {
+                    connStatus.className = 'status-indicator connected';
+                    connText.textContent = `Connected to ${data.ssid || 'WiFi'}`;
+                    connIp.textContent = `IP: ${config.espIp}`;
+                    config.connected = true;
+                    config.connectionMode = 'connected';
+                } else if (data.status === 'ap_mode') {
+                    connStatus.className = 'status-indicator ap-mode';
+                    connText.textContent = 'Device in Setup Mode';
+                    connIp.textContent = `IP: ${config.espIp}`;
+                    config.connected = true;
+                    config.connectionMode = 'ap_mode';
+                }
+                
+                updateSetupStatus();
+                return true;
             } catch (error) {
                 connStatus.className = 'status-indicator disconnected';
                 connText.textContent = 'Disconnected from Dispenser';
-                connIp.textContent = `IP: ${config.espIp}`;
+                connIp.textContent = `Last IP: ${config.espIp}`;
                 config.connected = false;
+                config.connectionMode = 'disconnected';
+                updateSetupStatus();
+                return false;
             }
+        }
+
+        function updateSetupStatus() {
+            if (!config.espIp) {
+                setupStatus.className = 'status-indicator disconnected';
+                setupText.textContent = 'No device configured';
+                return;
+            }
+            
+            setupStatus.className = 'status-indicator ' + config.connectionMode;
+            
+            switch(config.connectionMode) {
+                case 'connected':
+                    setupText.textContent = `Connected to ${config.espIp}`;
+                    break;
+                case 'ap_mode':
+                    setupText.textContent = `Device in Setup Mode at ${config.espIp}`;
+                    break;
+                case 'disconnected':
+                    setupText.textContent = `Cannot connect to ${config.espIp}`;
+                    break;
+            }
+        }
+
+        async function discoverDevice() {
+            discoveryStatus.textContent = 'Scanning network...';
+            discoveredDevices.innerHTML = '';
+            
+            // Common IP ranges to scan
+            const ipRanges = [
+                '192.168.1',   // Common home network
+                '192.168.0',   // Common home network
+                '192.168.4',   // ESP8266 AP mode
+                '192.168.100', // Some routers
+                '192.168.50',  // Some routers
+                '10.0.0',      // Business networks
+                '172.16.0'     // Business networks
+            ];
+            
+            const promises = [];
+            const discovered = [];
+            
+            // Scan first 20 IPs in each range
+            for (const range of ipRanges) {
+                for (let i = 1; i <= 20; i++) {
+                    const ip = `${range}.${i}`;
+                    promises.push(checkIP(ip));
+                }
+            }
+            
+            // Check localhost variations
+            promises.push(checkIP('localhost'));
+            promises.push(checkIP('127.0.0.1'));
+            
+            // Wait for all checks to complete
+            const results = await Promise.all(promises);
+            
+            // Filter successful discoveries
+            results.forEach(result => {
+                if (result && result.found) {
+                    discovered.push(result);
+                }
+            });
+            
+            // Update UI
+            if (discovered.length > 0) {
+                discoveryStatus.textContent = `Found ${discovered.length} device(s)`;
+                discovered.forEach(device => {
+                    const div = document.createElement('div');
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.style.background = '#e8f4fd';
+                    div.style.borderRadius = '5px';
+                    div.innerHTML = `
+                        <strong>${device.ip}</strong><br>
+                        ${device.info ? `Device ID: ${device.info.chip_id}` : 'MediMate Device'}
+                        <button onclick="selectDevice('${device.ip}')" style="float:right;padding:5px 10px;background:var(--primary-blue);color:white;border:none;border-radius:4px;cursor:pointer;">
+                            Select
+                        </button>
+                    `;
+                    discoveredDevices.appendChild(div);
+                });
+            } else {
+                discoveryStatus.textContent = 'No devices found';
+                discoveredDevices.innerHTML = '<p>Try connecting to WiFi: <strong>MediMate-Dispenser</strong> (password: medimate123)</p>';
+            }
+        }
+
+        async function checkIP(ip) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1000);
+                
+                const response = await fetch(`http://${ip}/health`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: controller.signal,
+                    cache: 'no-cache'
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { found: true, ip: ip, info: data };
+                }
+            } catch (error) {
+                // IP not reachable, continue
+            }
+            return null;
+        }
+
+        function selectDevice(ip) {
+            config.espIp = ip;
+            espIpInput.value = ip;
+            localStorage.setItem('espIp', ip);
+            showNotification(`Selected device: ${ip}`, 'success');
+            checkConnection();
+        }
+
+        function saveConfig() {
+            const ip = espIpInput.value.trim();
+            if (!ip) {
+                showNotification('Please enter an IP address', 'error');
+                return;
+            }
+            
+            // Validate IP format
+            const ipPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            const hostnamePattern = /^[a-zA-Z0-9.-]+$/;
+            
+            if (!ipPattern.test(ip) && !hostnamePattern.test(ip)) {
+                showNotification('Please enter a valid IP address or hostname', 'error');
+                return;
+            }
+            
+            config.espIp = ip;
+            localStorage.setItem('espIp', ip);
+            showNotification('Configuration saved!', 'success');
+            checkConnection();
+        }
+
+        function scanNetwork() {
+            discoverDevice();
         }
 
         function loadAlarms() {
@@ -376,11 +799,22 @@
             }
         }
 
-        function saveConfig() {
-            config.espIp = espIpInput.value;
-            localStorage.setItem('espIp', config.espIp);
-            showNotification('Configuration saved!', 'success');
-            checkConnection();
+        function loadAppSettings() {
+            document.getElementById('speechEnabled').value = config.appSettings.speechEnabled.toString();
+            document.getElementById('soundEnabled').value = config.appSettings.soundEnabled.toString();
+            document.getElementById('scanInterval').value = config.appSettings.scanInterval;
+        }
+
+        function saveAppSettings() {
+            config.appSettings.speechEnabled = document.getElementById('speechEnabled').value === 'true';
+            config.appSettings.soundEnabled = document.getElementById('soundEnabled').value === 'true';
+            config.appSettings.scanInterval = parseInt(document.getElementById('scanInterval').value);
+            
+            localStorage.setItem('speechEnabled', config.appSettings.speechEnabled);
+            localStorage.setItem('soundEnabled', config.appSettings.soundEnabled);
+            localStorage.setItem('scanInterval', config.appSettings.scanInterval);
+            
+            showNotification('Settings saved!', 'success');
         }
 
         function setAlarm(med) {
@@ -390,14 +824,16 @@
                 localStorage.setItem(`alarm_${med}`, timeVal);
                 document.getElementById(`s-${med}`).classList.add('alarm-set');
                 showNotification(`Alarm set for ${med} at ${timeVal}`, 'success');
-                speak(`Alarm set for ${med}`);
+                if (config.appSettings.speechEnabled) {
+                    speak(`Alarm set for ${med}`);
+                }
             } else {
                 showNotification('Please select a time', 'error');
             }
         }
 
         function checkAlarms() {
-            if (!config.connected) return;
+            if (!config.connected || config.connectionMode !== 'connected') return;
             
             const now = new Date();
             const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -414,15 +850,21 @@
         }
 
         async function triggerDispense(med) {
-            if (!config.connected) {
+            if (!config.connected || config.connectionMode !== 'connected') {
                 showNotification('Cannot dispense: Not connected to dispenser', 'error');
                 return;
             }
             
             try {
                 const response = await fetch(`http://${config.espIp}/dispense?pill=${med}time`);
-                speak(`Attention! It is time to take your ${med} medicine.`);
-                showNotification(`${med} dispensed successfully!`, 'success');
+                if (response.ok) {
+                    if (config.appSettings.speechEnabled) {
+                        speak(`Attention! It is time to take your ${med} medicine.`);
+                    }
+                    showNotification(`${med} dispensed successfully!`, 'success');
+                } else {
+                    throw new Error('Dispense failed');
+                }
             } catch (error) {
                 showNotification('Failed to dispense medicine', 'error');
             }
@@ -436,15 +878,21 @@
             
             try {
                 const response = await fetch(`http://${config.espIp}/dispense?pill=${pill}`);
-                speak(`Manually opening ${pill} box`);
-                showNotification(`${pill} box opened`, 'info');
+                if (response.ok) {
+                    if (config.appSettings.speechEnabled) {
+                        speak(`Manually opening ${pill} box`);
+                    }
+                    showNotification(`${pill} box opened`, 'info');
+                } else {
+                    throw new Error('Open failed');
+                }
             } catch (error) {
                 showNotification('Failed to open box', 'error');
             }
         }
 
         function speak(text) {
-            if ('speechSynthesis' in window) {
+            if ('speechSynthesis' in window && config.appSettings.speechEnabled) {
                 const msg = new SpeechSynthesisUtterance();
                 msg.text = text;
                 msg.volume = 1;
@@ -453,6 +901,86 @@
                 window.speechSynthesis.speak(msg);
             }
         }
+
+        async function getDeviceInfo() {
+            if (!config.connected) {
+                deviceInfo.textContent = 'Not connected to device';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://${config.espIp}/info`);
+                if (response.ok) {
+                    const data = await response.json();
+                    deviceInfo.innerHTML = `
+                        <strong>Device ID:</strong> ${data.chip_id}<br>
+                        <strong>Firmware:</strong> ${data.firmware}<br>
+                        <strong>WiFi Mode:</strong> ${data.wifi_mode}<br>
+                        <strong>Memory:</strong> ${data.free_heap} bytes free<br>
+                        <strong>Flash:</strong> ${Math.round(data.flash_size / 1024)} KB
+                    `;
+                } else {
+                    deviceInfo.textContent = 'Failed to get device info';
+                }
+            } catch (error) {
+                deviceInfo.textContent = 'Error connecting to device';
+            }
+        }
+
+        function resetAllSettings() {
+            if (confirm('Are you sure you want to reset all settings? This will clear all alarms and configuration.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // WiFi Setup Functions (for when device is in AP mode)
+        async function scanNetworks() {
+            showNotification('WiFi scanning requires device to be in AP mode', 'info');
+        }
+
+        async function saveWiFiConfig() {
+            const ssid = document.getElementById('setupSSID').value;
+            const password = document.getElementById('setupPassword').value;
+            
+            if (!ssid) {
+                showNotification('Please enter WiFi SSID', 'error');
+                return;
+            }
+            
+            try {
+                // This assumes device is in AP mode at 192.168.4.1
+                const response = await fetch('http://192.168.4.1/configure', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ssid=${encodeURIComponent(ssid)}&password=${encodeURIComponent(password)}`
+                });
+                
+                if (response.ok) {
+                    showNotification('WiFi credentials sent! Device will restart.', 'success');
+                    setTimeout(() => {
+                        showNotification('Please reconnect to your WiFi and refresh this page', 'info', 10000);
+                    }, 3000);
+                } else {
+                    throw new Error('HTTP error');
+                }
+            } catch (error) {
+                showNotification('Failed to send credentials. Make sure you are connected to MediMate-Dispenser WiFi', 'error');
+            }
+        }
+
+        function closeSetupModal() {
+            document.getElementById('wifiSetupModal').style.display = 'none';
+        }
+
+        // Auto-show setup modal if no device found
+        setTimeout(() => {
+            if (!config.connected && !config.espIp) {
+                document.getElementById('wifiSetupModal').style.display = 'flex';
+            }
+        }, 5000);
     </script>
 </body>
 </html>
