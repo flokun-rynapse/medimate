@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediMate Smart Dispenser</title>
+    <style>
+        :root { --blue: #007bff; --gray: #6c757d; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 450px; }
+        .status-bar { background: #333; color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .med-title { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 10px; display: block; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        input[type="time"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-set { background: var(--blue); color: white; }
+        .btn-open { background: var(--gray); color: white; width: 100%; }
+        button:hover { opacity: 0.8; }
+        .ip-input { width: 80%; padding: 5px; margin-top: 10px; border-radius: 4px; border: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="status-bar">
+        <strong>MediMate Cloud Control</strong><br>
+        <input type="text" id="ipAddress" class="ip-input" placeholder="Enter ESP IP (e.g. 192.168.1.50)" value="medimate.local">
+    </div>
+
+    <div class="card">
+        <span class="med-title">Glipizide</span>
+        <div class="row">
+            <input type="time" id="t-glipizide">
+            <button class="btn-set" onclick="api('set', 'glipizide')">SET</button>
+        </div>
+        <button class="btn-open" onclick="api('open', 'glipizide')">Manual Open</button>
+    </div>
+
+    <div class="card">
+        <span class="med-title">Omee Tablet</span>
+        <div class="row">
+            <input type="time" id="t-omee">
+            <button class="btn-set" onclick="api('set', 'omee')">SET</button>
+        </div>
+        <button class="btn-open" onclick="api('open', 'omee')">Manual Open</button>
+    </div>
+
+    <div class="card">
+        <span class="med-title">Dolo 650</span>
+        <div class="row">
+            <input type="time" id="t-dolo">
+            <button class="btn-set" onclick="api('set', 'dolo')">SET</button>
+        </div>
+        <button class="btn-open" onclick="api('open', 'dolo')">Manual Open</button>
+    </div>
+
+    <div class="card">
+        <span class="med-title">Paracetamol</span>
+        <div class="row">
+            <input type="time" id="t-paracetamol">
+            <button class="btn-set" onclick="api('set', 'paracetamol')">SET</button>
+        </div>
+        <button class="btn-open" onclick="api('open', 'paracetamol')">Manual Open</button>
+    </div>
+</div>
+
+<script>
+    function api(type, med) {
+        const ip = document.getElementById('ipAddress').value;
+        const time = document.getElementById('t-' + med).value;
+        let url = `http://${ip}/${type}?pill=${med}`;
+        
+        if (type === 'set') {
+            if (!time) { alert("Please select a time"); return; }
+            url += `&time=${time}`;
+        }
+
+        // We use mode: 'no-cors' to bypass HTTPS-to-HTTP blocking in some browsers
+        fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                alert(`Command sent: ${type} ${med}`);
+            })
+            .catch(err => {
+                alert("Connection failed. Ensure you are on the same WiFi and have 'Insecure Content' allowed in browser settings.");
+            });
+    }
+</script>
+
+</body>
+</html>
